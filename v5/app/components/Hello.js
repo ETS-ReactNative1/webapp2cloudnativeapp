@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Button, Text, TextInput } from 'react-native-paper';
+import { Button, TextInput } from 'react-native-paper';
 import AppID from 'ibmcloud-appid-js';
 import {
   readItems,
@@ -26,58 +26,42 @@ const Hello = () => {
     }
   };
 
+  const [inited, setInited] = useState(false);
   ( async () => {
     try{
-      onInit().then( () => {} );
+      if( !inited ){
+        setInited( true );
+        onInit().then( () => {} );
 
-      await appID.init({
-        //. 環境変数を取得して指定する
-        clientId: process.env.REACT_APP_APPID_CLIENTID,
-        discoveryEndpoint: process.env.REACT_APP_APPID_ENDPOINT
-      });
-    }catch( e ){
-      //setErrorState( true );
-      //setErrorMessage( e.message );
-    }
-  })();
-  /*
-  ( async() => {
-    try{
-      await onInit();
+        await appID.init({
+          //. 環境変数を取得して指定する
+          clientId: process.env.REACT_APP_APPID_CLIENTID,
+          discoveryEndpoint: process.env.REACT_APP_APPID_ENDPOINT
+        });
+      }
     }catch( e ){
       console.log( e );
     }
-  });
-  */
-  /*
-  onInit().then( () => {} );
-  */
-  /*
-  onInit();
-  */
+  })();
 
   const [loginButtonDisplayState, setLoginButtonDisplayState] = React.useState( true );
   const [userName, setUserName] = React.useState( '' );
   const loginAction = async () => {
     try{
       const tokens = await appID.signin();
-      //setErrorState( false );
       setLoginButtonDisplayState( false );
       setUserName( tokens.idTokenPayload.name );
     }catch( e ){
-      //setErrorState( true );
-      //setErrorMessage( e.message );
+      console.log( e );
     }
   };
   const logoutAction = async () => {
     try{
       await appID.signout();
-      //setErrorState( false );
       setLoginButtonDisplayState( true );
       setUserName( '' );
     }catch( e ){
-      //setErrorState( true );
-      //setErrorMessage( e.message );
+      console.log( e );
     }
   };
 
@@ -88,8 +72,8 @@ const Hello = () => {
   const onPressQuery = async () => {
     try{
       const results = await queryItems( inputKey );
-      console.log( results );
-      setItemsData( results );  //. ?
+      //console.log( results );
+      setItemsData( results );
     }catch( err ){
       console.log( err );
     }
@@ -129,7 +113,7 @@ const Hello = () => {
         <Button
           mode="contained"
           style={styles.button}
-          onPress={ () => onPressQuery()}
+          onPress={ () => onPressQuery().then( () => {} )}
         >
           検索
         </Button>
